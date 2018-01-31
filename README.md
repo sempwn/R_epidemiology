@@ -5,6 +5,7 @@ methods.
 
 ## Previous Papers
 
+* Feb 2018. [An introduction to infectious disease modelling](http://sbfnk.github.io/chennai-modelling/index.html)
 * Jan 2018. [A clarification of transmission terms in host-microparasite models: numbers, densities and areas.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2869860/)
 * Nov 2017. [Perturbations in Epidemiological Models: When zombies attack, we can survive!](http://dx.doi.org/10.1080/23737867.2014.11414478 )
 * Oct 2017. [Modelling and calibration of the hepatitis C epidemic in Australia.](https://www.ncbi.nlm.nih.gov/pubmed/19036911)
@@ -15,7 +16,7 @@ methods.
 
 
 
-## R script examples 
+## R script examples
 
 * [Comparison between frequency-dependent and density-dependent transmission](frequency-density-dynamics-comparison.R)
 * [Vaccination rate in SIR](simple_SIR.R)
