@@ -14,9 +14,10 @@ methods.
 * June 2017. [Optimizing an HIV testing program using a system dynamics model of the continuum of care](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4543429/pdf/10729_2014_Article_9312.pdf)
 * May 2017. [Modeling influenza epidemics and pandemics: insights into the future of swine flu (H1N1)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2715422/ )
 
-## Proposed papers
+## Proposed papers and tutorials
 
 * [Estimating the fitness cost and benefit of cefixime resistance in Neisseria gonorrhoeae to inform prescription policy: A modelling study](http://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.1002416&type=printable)
+* [Introduction to POMP for partially observed data](http://kingaa.github.io/short-course/)
 
 
 
