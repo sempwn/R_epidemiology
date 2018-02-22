@@ -25,3 +25,4 @@ methods.
 
 * [Comparison between frequency-dependent and density-dependent transmission](frequency-density-dynamics-comparison.R)
 * [Vaccination rate in SIR](simple_SIR.R)
+* [Introduction to differential equations (Feb 2018)](introduction_to_differential_equations.R)
