@@ -19,6 +19,7 @@ methods.
 * [Estimating the fitness cost and benefit of cefixime resistance in Neisseria gonorrhoeae to inform prescription policy: A modelling study](http://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.1002416&type=printable)
 * [Introduction to POMP for partially observed data](http://kingaa.github.io/short-course/)
 * [Epimodel R package](http://www.epimodel.org/index.html)
+* [Principled Bayesian workflow](https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html)
 
 
 

@@ -106,7 +106,7 @@ summary(model.mean)
 lm.imp <- lm(x1 ~ y + x2 + x3,data=df)
 
 pred <- predict (lm.imp, df)
-df$x1.imp <- impute (x1, pred)
+df$x1.imp <- impute (df$x1, pred)
 
 plot.compare.histogram(x1,df$x1.imp,labels=c("true","reconstructed from \ndeterministic imputation"))
 
