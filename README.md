@@ -28,4 +28,5 @@ methods.
 * [Comparison between frequency-dependent and density-dependent transmission](frequency-density-dynamics-comparison.R)
 * [Vaccination rate in SIR](simple_SIR.R)
 * [Introduction to differential equations (Feb 2018)](introduction_to_differential_equations.R)
-* [Introduction to data imputation (June 2018)](introduction_to_data_imputation.R)
+* [Introduction to data imputation (June 5th 2018)](introduction_to_data_imputation.R)
+* [Introduction to data imputation (June 19th 2018)](introduction_to_probabilistic_record_linkages.R)
