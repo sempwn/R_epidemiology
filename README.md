@@ -4,6 +4,7 @@ of papers and blogs in order to introduce a variety of mathematical epidemiology
 methods.
 
 ## Previous Papers
+* [Noncollapsibility, confounding, and sparse data bias](https://doi.org/10.1016/j.jclinepi.2021.06.007)
 * June 2018 [An introduction to data imputation](http://www.stat.columbia.edu/%7Egelman/arm/missing.pdf)
 * Feb 2018. [An introduction to infectious disease modelling](http://sbfnk.github.io/chennai-modelling/index.html)
 * Jan 2018. [A clarification of transmission terms in host-microparasite models: numbers, densities and areas.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2869860/)
@@ -26,6 +27,7 @@ methods.
 
 ## R script examples
 
+* [Comparison of marginal and total odds ratios](collapsible_odds_ratios.R)
 * [Comparison between frequency-dependent and density-dependent transmission](frequency-density-dynamics-comparison.R)
 * [Vaccination rate in SIR](simple_SIR.R)
 * [Introduction to differential equations (Feb 2018)](introduction_to_differential_equations.R)
