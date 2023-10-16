@@ -1,0 +1,269 @@
+---
+title: "collapsible odds ratios"
+author: "Mike Irvine"
+format: html
+---
+
+```{r}
+#| include: false
+#| echo: false
+
+library(tidyverse)
+library(epitools)
+library(sjPlot)
+
+set.seed(5)
+
+expit <- function(x) {
+  1 / (1 + exp(-x))
+}
+n <- 100
+d <- tibble(x = rbinom(n, size = 1, p = 0.5))
+d$z <- rbinom(n, size = 1, p = 0.5)
+d$y <- rbinom(n, size = 1, p = expit(0.5 + 0.5 * d$x -  2 * d$z))
+
+# contingency table
+ftable(d[, c("x", "y")])
+
+#calculate odds ratio
+od <- oddsratio(ftable(d[, c("x", "y")]))
+print("Total odds")
+print(od$measure[2, 1])
+
+od <- oddsratio(ftable(d[d$z == 1, c("x", "y")]))
+or_z <- od$measure[2, 1]
+
+
+od <- oddsratio(ftable(d[d$z == 0, c("x", "y")]))
+or_nz <- od$measure[2, 1]
+
+# marginal sum
+marginal_sum <- (or_nz * table(d$z)[[1]] + or_z * table(d$z)[[2]]) / n
+
+# unadjusted OR
+m1 <- glm(y ~ x, data = d, family = "binomial")
+#print("Unadjusted OR")
+#print(exp(coef(m1))["x"])
+
+# adjusted OR
+m2 <- glm(y ~ x + z, data = d, family = "binomial")
+#print("adjusted OR")
+#print(exp(coef(m2))["x"])
+```
+
+
+## Collapsibility 
+
+The definition of collapsibility offered by Judea Pearl is that given an exposure $x$ and an outcome $y$ with a probability distribution $P(x,y)$ and a statistic $g$, we say that $g$ is collapsible given a random variable $z$ if
+
+$$
+\mathbb{E}_z[g(P(x,y|z))] = g(P(x,y))
+$$ {#eq-collapsible-def}
+
+It's worth going through in words what this definition means and what the pieces
+on the right-hand side and left-hand side of @eq-collapsible-def . 
+$\mathbb{E}_z$ is the expectation over the third variable $z$, which takes the
+value of $g$ conditioned on $z$ and weighted by the probability of $z$. The 
+right hand side is the unconditioned or total probability $P(x,y)$ summarized
+using $g$. 
+
+One thing to note with this formalism is that it doesn't depend on how $P$ is 
+generated. We could generate this from a generalized linear model or empirically from a contingency table. This then means that the results of non-collapsibiity *are not model dependent*. It's not about using a better model but the fundamental relationship between our statistic $g$, the association between exposure $x$ and outcome $y$, $P(x,y)$, and the relationship conditioned on $z$, $P(x,y|z)$.
+
+Let's switch to think about a more concrete example. We can think about this in terms of a dichotomous exposure (e.g. history of smoking) and an outcome (e.g. emphysema). The third variable can either be a competing exposure with the outcome, shown with the diagram below,
+
+```{mermaid}
+flowchart BT
+  X
+  Y
+  Z
+  X --> Y
+  Z --> Y
+```
+
+or it can be a confounder as in the diagram below,
+
+```{mermaid}
+flowchart BT
+  X
+  Y
+  Z
+  X --> Y
+  Z --> Y
+  Z --> X
+```
+
+If these were all linear relationships then we could build a linear model that includes $Z$ regardless of the it being a confounder or competing exposure If it's a confounder then we've successfully blocked the path from $X$ to $Y$ via $Z$. If it's a competing exposure then we've reduced the variance of the estimated relationship between $x$ and $Y$ by reducing the overall unexplained variation. We'll see that we run into problems when we apply the same logic to dichotomous variables using odds ratios as a summary statistic.
+
+Here I will use the definition of collapsibility to show how it relates to a contingency table analysis and also how it applies to logistic regression analysis. In both cases, how the joint and conditional probability distributions of $P(x,y)$ are estimated differ, but the equality or inequality of @eq-collapsible-def will still hold.
+
+## Relationship to the weighted mean
+
+Suppose we have the situation where we have a dichotomous outcome, exposure, and a third covariate that have been sampled `r n` times. Then we can create a contigency table between the exposure and the outcome,
+
+```{r}
+#| echo: false
+d[, c("x", "y")] %>%
+  table() %>%
+  addmargins() %>%
+  as.data.frame.matrix() %>%
+  knitr::kable()
+```
+where the outcome is shown in the columns and the exposure is shown in the rows. To calculate the Odds ratio from a contingency table we remember that it's the ratio between the odds of the outcome given the exposure and the odds of the outcome given the absence of the exposure, 
+
+$$
+\begin{aligned}
+OR(P(x,y)) &= \frac{P(Y=1|X=1)}{P(Y=0|X=1)} / \frac{P(Y=1|X=0)}{P(Y=0|X=0)}, \\ 
+&= \frac{P(Y=1|X=1)P(Y=0|X=0)}{P(Y=0|X=1)P(Y=1|X=0)}
+\end{aligned}
+$$
+
+```{r}
+#| include: false
+ct <- table(d[, c("x", "y")])
+odds_e <- ct[2,2]/ct[2,1]
+odds_ne <- ct[1,2]/ct[1,1]
+
+overall_or <- odds_e/odds_ne
+
+```
+
+In the example above the odds of the outcome given the exposure are `r round(odds_e,2)` and the odds of the outcome in the absence of the event are `r round(odds_ne,2)` where the resulting odds ratio is `r round(overall_or,2)`.
+
+Using a third variable $Z$, we can produce a similar contingency table when $Z$ is present,
+
+```{r}
+#| echo: false
+d[d$z == 1, c("x", "y")] %>%
+  table() %>%
+  addmargins() %>%
+  as.data.frame.matrix() %>%
+  knitr::kable()
+```
+
+```{r}
+#| include: false
+z_ct <- table(d[d$z == 1, c("x", "y")])
+z_odds_e <- z_ct[2,2]/z_ct[2,1]
+z_odds_ne <- z_ct[1,2]/z_ct[1,1]
+
+z_overall_or <- z_odds_e/z_odds_ne
+
+```
+
+which, when $Z$ is present the odds of the outcome given the exposure are `r round(odds_e,2)` and the odds of the outcome in the absence of the event are `r round(odds_ne,2)` where the resulting odds ratio is `r round(overall_or,2)`.
+
+Similarly we can create a table when $Z$ is not present,
+
+```{r}
+#| echo: false
+d[d$z == 0, c("x", "y")] %>%
+  table() %>%
+  addmargins() %>%
+  as.data.frame.matrix() %>%
+  knitr::kable()
+```
+
+```{r}
+#| include: false
+nz_ct <- table(d[d$z ==0, c("x", "y")])
+nz_odds_e <- nz_ct[2,2]/nz_ct[2,1]
+nz_odds_ne <- nz_ct[1,2]/nz_ct[1,1]
+
+nz_overall_or <- nz_odds_e/nz_odds_ne
+
+```
+
+which, when $Z$ is not present, the odds of the outcome given the exposure are `r round(nz_odds_e,2)` and the odds of the outcome in the absence of the event are `r round(nz_odds_ne,2)` where the resulting odds ratio is `r round(nz_overall_or,2)`.
+
+We can see something strange has happened when conditioning on $Z$. Overall, the odds ratio was less than one, but yet when conditioning on $Z$ both sets of odds ratios are above 1 despite having a balanced sample between where $Z$ is present or absent.
+
+If we want to know what the expected value of the odds ratio is over $Z$ then we can use the definition of the expectation for discrete random variables,
+
+$$
+\mathbb{E}_z[OR(P(x,y|z))] = OR(P(x,y|Z = 0))P(Z=0) + OR(P(x,y|Z = 1))P(Z = 1)
+$$
+
+Substituting in the values we calculated above and using the frequency of $Z$ in the sample as the probability of $Z$, the resulting expected odds ratio is,
+
+```{r}
+#| include: false
+p_z <- sum(d$z == 1)/nrow(d)
+p_nz <- sum(d$z == 0)/nrow(d)
+
+adjusted_or <- nz_overall_or * p_nz + z_overall_or * p_z
+```
+
+
+$$
+\begin{aligned}
+\mathbb{E}_z[OR(P(x,y|z))] &= OR(P(x,y|Z = 0))P(Z=0) + OR(P(x,y|Z = 1))P(Z = 1) \\
+&= `r round(nz_overall_or,2)`\times `r round(p_nz,2)` + `r round(z_overall_or,2)`\times `r round(p_z,2)`, \\
+&= `r round(adjusted_or,2)`
+\end{aligned}
+$$
+
+
+## Relationship to logistic regression
+
+It may not be clear how the contingency table analysis we just explored connects to logistic regression. We start by stating the usual way probabilities of the outcome are modeled for a single exposure $x$,
+
+$$
+\log\left(\frac{P(Y=1|X = x)}{1 - P(Y=1|x=x)}\right) = \beta_0 + \beta_1 x.
+$$ {#eq-logistic-regression}
+
+Additional exposures ($Z$) are added to the right-hand side,
+
+$$
+\log\left(\frac{P(Y=1|X = x,Z = z)}{1 - P(Y=1|x=x,Z = z)}\right) = \beta_0' + \beta_1' x + \beta_2' z.
+$$ {#eq-logistic-regression-2}
+
+Note the dash to indicate that these would in general be different coefficients. Usually the model is used to develop a likelihood based on a series of Bernoulli trials with the above probabilities. This provides both the coefficients $\beta$ and ways to estimate the uncertainty of its estimator. We can interpret the coefficients by exponentiating @eq-logistic-regression and then setting the exposure to $1$ and $0$ to obtain the odds ratio,
+
+$$
+\begin{aligned}
+\frac{P(Y=1|X = x)}{1 - P(Y=1|X=x)} &= \exp(\beta_0 + \beta_1 x), \\
+\implies \frac{P(Y=1|X = 1)}{1 - P(Y=1|X=1)} &= \exp(\beta_0 + \beta_1), \\
+\implies \frac{P(Y=1|X = 1)}{1 - P(Y=1|X=1)}/\frac{P(Y=1|X = 0)}{1 - P(Y=1|X=0)} &= \exp(\beta_0 + \beta_1)/\exp(\beta_0), \\
+&= \exp(\beta_1).
+\end{aligned}
+$$
+
+What if we want to obtain the conditional odds ratio conditioned on $Z$? We can similarly calculate the odds ratio from @eq-logistic-regression-2, 
+
+$$
+\begin{aligned}
+\frac{P(Y=1|X = x, Z = z)}{1 - P(Y=1|X=x, Z = z)} &= \exp(\beta_0' + \beta_1' x + \beta_2' z), \\
+\implies \frac{P(Y=1|X = 1, Z = z)}{1 - P(Y=1|X=1, Z = z)} &= \exp(\beta_0' + \beta_1'  + \beta_2' z), \\
+\implies \frac{P(Y=1|X = 1, Z = z)}{1 - P(Y=1|X=1, Z = z)}/\frac{P(Y=1|X = 0, Z = z)}{1 - P(Y=1|X=0, Z = z)} &= \exp(\beta_0' + \beta_1'  + \beta_2' z)/\exp(\beta_0'  + \beta_2' z), \\
+\implies OR(P(x,y|z))&= \exp(\beta_1').
+\end{aligned}
+$$
+
+Note there's no dependency on the right-hand side so the expectation over $z$ 
+is the same value,
+
+$$\mathbb{E}_z[OR(P(x,y|z))] = \exp(\beta_1').$$
+
+This is the same as what we derived in the contingency table analysis. As we
+are using different approaches to estimation there may be differences when we
+apply both approaches to data.
+
+For our example if we estimate the un-adjusted odds ratio using @eq-logistic-regression,
+
+```{r}
+#| echo: false
+#| results: asis
+tab_model(m1)
+```
+
+In comparison, the adjusted odds ratio using @eq-logistic-regression-2 gives 
+the following,
+
+```{r}
+#| echo: false
+#| results: asis
+tab_model(m2)
+```
+
+# Where is non-collapsibility coming from?

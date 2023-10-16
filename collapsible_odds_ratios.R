@@ -23,8 +23,14 @@ print(od$measure[2, 1])
 od <- oddsratio(ftable(d[d$z == 1, c("x", "y")]))
 or_z <- od$measure[2, 1]
 
+print("odds ratio (z == 1)")
+print(or_z)
+
 od <- oddsratio(ftable(d[d$z == 0, c("x", "y")]))
 or_nz <- od$measure[2, 1]
+
+print("odds ratio (z == 0)")
+print(or_nz)
 
 # marginal sum
 print("marginal sum")
