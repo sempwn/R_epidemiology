@@ -21,7 +21,8 @@ methods.
 * [Introduction to POMP for partially observed data](http://kingaa.github.io/short-course/)
 * [Epimodel R package](http://www.epimodel.org/index.html)
 * [Principled Bayesian workflow](https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html)
-[Reflection on modern methods: a common error in the segmented regression parameterization of interrupted time-series analyses](https://academic.oup.com/ije/article/50/3/1011/5937253)
+* [Reflection on modern methods: a common error in the segmented regression parameterization of interrupted time-series analyses](https://academic.oup.com/ije/article/50/3/1011/5937253)
+* [Philosophy and the practice of Bayesian statistics](http://www.stat.columbia.edu/~gelman/research/published/philosophy.pdf)
 
 
 
